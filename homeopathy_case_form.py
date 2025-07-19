@@ -168,36 +168,21 @@ if service_type == "Case Taking":
             pdf.set_font("Arial", "B", 14)
             pdf.cell(200, 10, "Detailed Case History", ln=True)
             pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}
-")
-            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}
-")
-            pdf.multi_cell(200, 8, f"Modalities: {modalities}
-")
-            pdf.multi_cell(200, 8, f"Sleep: {sleep}
-")
-            pdf.multi_cell(200, 8, f"Appearance: {appearance}
-")
-            pdf.multi_cell(200, 8, f"Appetite: {appetite}
-")
-            pdf.multi_cell(200, 8, f"Thirst: {thirst}
-")
-            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}
-")
-            pdf.multi_cell(200, 8, f"Stool: {stool}
-")
-            pdf.multi_cell(200, 8, f"Urine: {urine}
-")
-            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}
-")
-            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}
-")
-            pdf.multi_cell(200, 8, f"Family History: {family_history}
-")
-            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}
-")
-            pdf.multi_cell(200, 8, f"Personal History: {personal_history}
-")
+            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}")
+            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}")
+            pdf.multi_cell(200, 8, f"Modalities: {modalities}")
+            pdf.multi_cell(200, 8, f"Sleep: {sleep}")
+            pdf.multi_cell(200, 8, f"Appearance: {appearance}")
+            pdf.multi_cell(200, 8, f"Appetite: {appetite}")
+            pdf.multi_cell(200, 8, f"Thirst: {thirst}")
+            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}")
+            pdf.multi_cell(200, 8, f"Stool: {stool}")
+            pdf.multi_cell(200, 8, f"Urine: {urine}")
+            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}")
+            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}")
+            pdf.multi_cell(200, 8, f"Family History: {family_history}")
+            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}")
+            pdf.multi_cell(200, 8, f"Personal History: {personal_history}")
 
         if "Medicine" in include_info:
             pdf.set_font("Arial", "B", 14)
