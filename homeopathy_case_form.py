@@ -87,7 +87,13 @@ if service_type == "Case Taking":
             st.markdown(f"Suggested: `{remedies}`")
 
     notes = st.text_area("Doctor's Notes")
-    prescribed = st.text_input("Prescribed Medicines (Doctor Selected)")
+    homeopathy_medicines = [
+        "Belladonna", "Nux Vomica", "Bryonia", "Sulphur", "Rhus Tox",
+        "Coffea Cruda", "Natrum Mur", "Graphites", "Apis", "Carbo Veg",
+        "Pulsatilla", "Aconite", "Arnica", "Ignatia", "Phosphorus"
+    ]
+    prescribed = st.multiselect("Select Prescribed Medicines", homeopathy_medicines)
+    prescribed_str = ", ".join(prescribed)
     followup_new = st.date_input("Next Follow-Up Date", value=date.today())
 
     st.header("Download Case History")
@@ -141,7 +147,7 @@ if service_type == "Case Taking":
             pdf.set_font("Arial", "B", 14)
             pdf.cell(200, 10, "Prescribed Medicine", ln=True)
             pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, prescribed)
+            pdf.multi_cell(200, 8, prescribed_str)
 
         if "Follow-Up" in include_info:
             pdf.set_font("Arial", "B", 14)
@@ -171,7 +177,7 @@ if service_type == "Case Taking":
             "Symptoms": ", ".join([s for s in selected_symptoms if s != "Other"]),
             "ManualSymptom": manual_symptom,
             "Notes": notes,
-            "PrescribedMedicine": prescribed
+            "PrescribedMedicine": prescribed_str
         }
         df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
         df.to_csv(data_file, index=False)
