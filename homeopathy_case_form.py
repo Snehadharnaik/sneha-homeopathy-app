@@ -183,7 +183,7 @@ elif service_type == "Medical Certificate":
     illness_reason = st.text_input("Diagnosis / Reason for Medical Leave")
     illness_start = st.date_input("Start Date of Leave")
     illness_end = st.date_input("End Date of Leave")
-        issue_date = st.date_input("Date of Issue", value=date.today())
+    issue_date = st.date_input("Date of Issue", value=date.today())
     signature_path = st.file_uploader("Upload Doctor's Digital Signature", type=["png", "jpg"])
     stamp_path = st.file_uploader("Upload Clinic Stamp", type=["png", "jpg"])
     secure_pdf = st.checkbox("Secure with password?", value=False)
