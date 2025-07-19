@@ -34,16 +34,46 @@ selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<N
 # --- Prefill if existing ---
 
 # Extended detailed case history fields
-general_complaints = st.text_area("General Complaints")
-mental_symptoms = st.text_area("Mental and Emotional Symptoms")
-modalities = st.text_area("Modalities (What makes it better/worse)")
-sleep = st.text_area("Sleep Pattern")
-appearance = st.text_area("General Appearance")
-appetite = st.text_area("Appetite & Food Desires/Aversions")
-thirst = st.text_area("Thirst")
-perspiration = st.text_area("Perspiration")
-stool = st.text_area("Stool Pattern")
-urine = st.text_area("Urine Pattern")
+general_complaints_options = ["Pain", "Weakness", "Fever", "Cough", "Headache", "Fatigue", "Other"]
+general_complaints = st.selectbox("General Complaints", general_complaints_options)
+if general_complaints == "Other":
+    general_complaints = st.text_input("Enter other general complaints")
+mental_symptoms_options = ["Anxiety", "Depression", "Irritability", "Fear", "Mood Swings", "Other"]
+mental_symptoms = st.selectbox("Mental and Emotional Symptoms", mental_symptoms_options)
+if mental_symptoms == "Other":
+    mental_symptoms = st.text_input("Enter other mental symptoms")
+modalities_options = ["Better by Rest", "Worse in Cold", "Worse in Evening", "Better in Open Air", "Other"]
+modalities = st.selectbox("Modalities (What makes it better/worse)", modalities_options)
+if modalities == "Other":
+    modalities = st.text_input("Enter other modalities")
+sleep_options = ["Sound", "Disturbed", "Insomnia", "Nightmares", "Excessive", "Other"]
+sleep = st.selectbox("Sleep Pattern", sleep_options)
+if sleep == "Other":
+    sleep = st.text_input("Enter other sleep pattern")
+appearance_options = ["Pale", "Healthy", "Obese", "Thin", "Other"]
+appearance = st.selectbox("General Appearance", appearance_options)
+if appearance == "Other":
+    appearance = st.text_input("Enter other appearance")
+appetite_options = ["Normal", "Increased", "Decreased", "Cravings", "Aversions", "Other"]
+appetite = st.selectbox("Appetite & Food Desires/Aversions", appetite_options)
+if appetite == "Other":
+    appetite = st.text_input("Enter other appetite detail")
+thirst_options = ["Normal", "Increased", "Decreased", "Dry Mouth", "Other"]
+thirst = st.selectbox("Thirst", thirst_options)
+if thirst == "Other":
+    thirst = st.text_input("Enter other thirst detail")
+perspiration_options = ["Normal", "Excessive", "Less", "Offensive", "Other"]
+perspiration = st.selectbox("Perspiration", perspiration_options)
+if perspiration == "Other":
+    perspiration = st.text_input("Enter other perspiration detail")
+stool_options = ["Normal", "Constipation", "Loose", "Incomplete", "Other"]
+stool = st.selectbox("Stool Pattern", stool_options)
+if stool == "Other":
+    stool = st.text_input("Enter other stool pattern")
+urine_options = ["Normal", "Burning", "Frequent", "Scanty", "Other"]
+urine = st.selectbox("Urine Pattern", urine_options)
+if urine == "Other":
+    urine = st.text_input("Enter other urine pattern")
 menstrual = st.text_area("Menstrual History (if applicable)")
 obstetric = st.text_area("Obstetric History (if applicable)")
 family_history = st.text_area("Family History")
