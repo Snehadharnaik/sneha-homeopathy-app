@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import date
+from fpdf import FPDF
 
 # CSV file to store patient data
 data_file = "patient_records.csv"
@@ -86,6 +87,77 @@ for symptom in selected_symptoms:
 notes = st.text_area("Doctor's Notes")
 prescribed = st.text_input("Prescribed Medicines (Doctor Selected)")
 followup_new = st.date_input("Next Follow-Up Date", value=date.today())
+
+# Download form options
+st.header("Download Case History")
+include_info = st.multiselect("Select sections to include in PDF", [
+    "Patient Info", "Symptoms", "Manual Symptom", "Repertory", "Notes", "Medicine", "Follow-Up"
+], default=["Patient Info", "Symptoms", "Notes", "Medicine"])
+
+if st.button("Download PDF"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    if "Patient Info" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Patient Information", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 8, f"Name: {name}", ln=True)
+        pdf.cell(200, 8, f"Age: {age}", ln=True)
+        pdf.cell(200, 8, f"Gender: {gender}", ln=True)
+        pdf.cell(200, 8, f"Contact: {contact}", ln=True)
+        pdf.multi_cell(200, 8, f"Address: {address}")
+
+    if "Symptoms" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Symptoms", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
+
+    if "Manual Symptom" in include_info and manual_symptom:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Additional Symptoms", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, manual_symptom)
+
+    if "Repertory" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Repertory Reference", ln=True)
+        pdf.set_font("Arial", size=12)
+        for symptom in selected_symptoms:
+            if symptom in repertory_map:
+                rubric, remedies = repertory_map[symptom]
+                pdf.multi_cell(200, 8, f"{symptom} → {rubric}\nSuggested: {remedies}")
+
+    if "Notes" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Doctor's Notes", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, notes)
+
+    if "Medicine" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Prescribed Medicine", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, prescribed)
+
+    if "Follow-Up" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Follow-Up Date", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, str(followup_new))
+
+    file_name = f"{name.replace(' ', '_')}_case_history.pdf"
+    pdf.output(file_name)
+
+    with open(file_name, "rb") as f:
+        st.download_button(
+            label="Download Case History PDF",
+            data=f,
+            file_name=file_name,
+            mime="application/pdf"
+        )
 
 if st.button("Save Case Record"):
     new_record = {
