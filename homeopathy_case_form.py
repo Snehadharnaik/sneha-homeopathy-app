@@ -1,114 +1,105 @@
 import streamlit as st
-from fpdf import FPDF
+import pandas as pd
+import os
+from datetime import date
 
-# --- Title ---
-st.title("Homeopathy Case History Form")
-st.subheader("Dr. Sneha Amit Dharnaik (Classical Homeopathy)")
+# CSV file to store patient data
+data_file = "patient_records.csv"
 
-# --- Patient Info ---
-st.header("1. Patient Information")
-name = st.text_input("Full Name")
-age = st.number_input("Age", 0, 120, step=1)
-gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-contact = st.text_input("Contact Number")
-address = st.text_area("Address")
+# Load existing data if exists
+if os.path.exists(data_file):
+    df = pd.read_csv(data_file)
+else:
+    df = pd.DataFrame(columns=[
+        "Name", "Age", "Gender", "Contact", "Address", "FollowUp",
+        "Symptoms", "ManualSymptom", "Notes", "PrescribedMedicine"
+    ])
 
-# --- Medical Case History ---
-st.header("2. Medical Case History")
-chief_complaints = st.text_area("Chief Complaints")
-onset = st.text_input("Onset")
-location = st.text_input("Location")
-sensation = st.text_input("Sensation")
-modalities = st.text_input("Modalities")
-associated = st.text_input("Associated Symptoms")
+st.title("Homeopathy Case History - Dr. Sneha Amit Dharnaik")
 
-# --- Symptoms and Remedies ---
-st.header("3. Select Symptoms")
-symptoms = [
+# --- Patient Selection ---
+existing_patients = df["Name"].unique().tolist()
+selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
+
+# --- Prefill if existing ---
+if selected_patient != "<New Patient>":
+    record = df[df["Name"] == selected_patient].iloc[-1]
+    name = selected_patient
+    age = record["Age"]
+    gender = record["Gender"]
+    contact = record["Contact"]
+    address = record["Address"]
+    followup = record["FollowUp"]
+    previous_symptoms = record["Symptoms"]
+    previous_manual = record["ManualSymptom"]
+    previous_notes = record["Notes"]
+    previous_medicine = record["PrescribedMedicine"]
+else:
+    name = st.text_input("Full Name")
+    age = st.number_input("Age", min_value=0, max_value=120, step=1)
+    gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+    contact = st.text_input("Contact Number")
+    address = st.text_area("Address")
+    followup = st.date_input("Follow-Up Date", value=date.today())
+    previous_symptoms = ""
+    previous_manual = ""
+    previous_notes = ""
+    previous_medicine = ""
+
+if selected_patient != "<New Patient>":
+    st.write("### Previous Case Details")
+    st.markdown(f"**Symptoms:** {previous_symptoms}")
+    st.markdown(f"**Manual Symptoms:** {previous_manual}")
+    st.markdown(f"**Notes:** {previous_notes}")
+    st.markdown(f"**Prescribed Medicine:** {previous_medicine}")
+    st.markdown(f"**Follow-Up:** {followup}")
+
+st.header("Current Visit")
+
+# Symptom selection
+dropdown_symptoms = [
     "Headache", "Constipation", "Cough", "Skin rash", "Joint pain",
-    "Sleeplessness", "Acidity", "Back pain"
+    "Sleeplessness", "Acidity", "Back pain", "Nausea", "Fever",
+    "Irritability", "Fatigue", "Vertigo", "Anxiety", "Other"
 ]
-selected_symptoms = st.multiselect("Choose Presenting Symptoms", symptoms)
+selected_symptoms = st.multiselect("Select Symptoms", dropdown_symptoms)
+manual_symptom = ""
+if "Other" in selected_symptoms:
+    manual_symptom = st.text_area("Enter Additional Symptoms")
 
-remedy_map = {
-    "Headache": "Belladonna",
-    "Constipation": "Nux Vomica",
-    "Cough": "Bryonia",
-    "Skin rash": "Sulphur",
-    "Joint pain": "Rhus Tox",
-    "Sleeplessness": "Coffea Cruda",
-    "Acidity": "Carbo Veg",
-    "Back pain": "Calcarea Phos"
-}
-suggested_remedies = [remedy_map[s] for s in selected_symptoms if s in remedy_map]
-
-# --- Notes ---
-st.header("4. Doctor's Notes")
-doctor_notes = st.text_area("Additional Notes")
-
-# --- Include in PDF ---
-st.header("5. Select What to Include in PDF")
-include = {
-    "Patient Info": st.checkbox("Patient Information", True),
-    "Medical History": st.checkbox("Medical Case History", True),
-    "Symptoms": st.checkbox("Symptoms & Suggested Medicines", True),
-    "Doctor Notes": st.checkbox("Doctor's Notes", True)
+# Repertory reference
+repertory_map = {
+    "Headache": ["Head - Pain - forehead - morning", "Belladonna, Natrum Mur"],
+    "Constipation": ["Rectum - Constipation - ineffectual", "Nux Vomica, Bryonia"],
+    "Sleeplessness": ["Sleep - Sleeplessness - from thoughts", "Coffea Cruda, Nux Vomica"],
+    "Joint pain": ["Extremities - Pain - joints - rheumatic", "Rhus Tox, Bryonia"],
+    "Skin rash": ["Skin - Eruptions - itching", "Sulphur, Apis, Graphites"]
 }
 
-# --- Generate PDF ---
-if st.button("Download PDF"):
+st.subheader("Repertory Reference")
+for symptom in selected_symptoms:
+    if symptom in repertory_map:
+        rubric, remedies = repertory_map[symptom]
+        st.markdown(f"**{symptom}** → *{rubric}*  ")
+        st.markdown(f"Suggested: `{remedies}`")
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
+notes = st.text_area("Doctor's Notes")
+prescribed = st.text_input("Prescribed Medicines (Doctor Selected)")
+followup_new = st.date_input("Next Follow-Up Date", value=date.today())
 
-    if include["Patient Info"]:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Patient Information", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 8, f"Name: {name}", ln=True)
-        pdf.cell(200, 8, f"Age: {age}", ln=True)
-        pdf.cell(200, 8, f"Gender: {gender}", ln=True)
-        pdf.cell(200, 8, f"Contact: {contact}", ln=True)
-        pdf.multi_cell(200, 8, f"Address: {address}")
-        pdf.ln()
-
-    if include["Medical History"]:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Medical Case History", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(200, 8, f"Chief Complaints: {chief_complaints}")
-        pdf.cell(200, 8, f"Onset: {onset}", ln=True)
-        pdf.cell(200, 8, f"Location: {location}", ln=True)
-        pdf.cell(200, 8, f"Sensation: {sensation}", ln=True)
-        pdf.cell(200, 8, f"Modalities: {modalities}", ln=True)
-        pdf.cell(200, 8, f"Associated Symptoms: {associated}", ln=True)
-        pdf.ln()
-
-    if include["Symptoms"]:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Symptoms & Suggested Remedies", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(200, 8, f"Symptoms: {', '.join(selected_symptoms)}")
-        pdf.multi_cell(200, 8, f"Suggested Remedies: {', '.join(set(suggested_remedies))}")
-        pdf.ln()
-
-    if include["Doctor Notes"]:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Doctor's Notes", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(200, 8, doctor_notes)
-        pdf.ln()
-
-    # Save to file
-    file_path = f"{name.replace(' ', '_')}_case_history.pdf"
-    pdf.output(file_path)
-
-    # Serve PDF to user
-    with open(file_path, "rb") as f:
-        st.download_button(
-            label="Download Case History PDF",
-            data=f,
-            file_name=file_path,
-            mime="application/pdf"
-        )
+if st.button("Save Case Record"):
+    new_record = {
+        "Name": name,
+        "Age": age,
+        "Gender": gender,
+        "Contact": contact,
+        "Address": address,
+        "FollowUp": followup_new,
+        "Symptoms": ", ".join([s for s in selected_symptoms if s != "Other"]),
+        "ManualSymptom": manual_symptom,
+        "Notes": notes,
+        "PrescribedMedicine": prescribed
+    }
+    df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
+    df.to_csv(data_file, index=False)
+    st.success(f"Case for {name} saved successfully!")
