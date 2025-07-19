@@ -14,6 +14,11 @@ if os.path.exists(data_file):
 else:
     df = pd.DataFrame(columns=[
         "Name", "Age", "Gender", "Contact", "Address", "FollowUp",
+        "Symptoms", "ManualSymptom", "Notes", "PrescribedMedicine",
+        "GeneralComplaints", "MentalSymptoms", "Modalities", "Sleep", "Appearance",
+        "Appetite", "Thirst", "Perspiration", "Stool", "Urine", "Menstrual",
+        "Obstetric", "FamilyHistory", "PastHistory", "PersonalHistory"
+        "Name", "Age", "Gender", "Contact", "Address", "FollowUp",
         "Symptoms", "ManualSymptom", "Notes", "PrescribedMedicine"
     ])
 
@@ -27,6 +32,23 @@ existing_patients = df["Name"].unique().tolist()
 selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
 
 # --- Prefill if existing ---
+
+# Extended detailed case history fields
+general_complaints = st.text_area("General Complaints")
+mental_symptoms = st.text_area("Mental and Emotional Symptoms")
+modalities = st.text_area("Modalities (What makes it better/worse)")
+sleep = st.text_area("Sleep Pattern")
+appearance = st.text_area("General Appearance")
+appetite = st.text_area("Appetite & Food Desires/Aversions")
+thirst = st.text_area("Thirst")
+perspiration = st.text_area("Perspiration")
+stool = st.text_area("Stool Pattern")
+urine = st.text_area("Urine Pattern")
+menstrual = st.text_area("Menstrual History (if applicable)")
+obstetric = st.text_area("Obstetric History (if applicable)")
+family_history = st.text_area("Family History")
+past_history = st.text_area("Past Medical History")
+personal_history = st.text_area("Personal History")
 if selected_patient != "<New Patient>":
     record = df[df["Name"] == selected_patient].iloc[-1]
     name = selected_patient
@@ -143,6 +165,40 @@ if service_type == "Case Taking":
             pdf.set_font("Arial", size=12)
             pdf.multi_cell(200, 8, notes)
 
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Detailed Case History", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}
+")
+            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}
+")
+            pdf.multi_cell(200, 8, f"Modalities: {modalities}
+")
+            pdf.multi_cell(200, 8, f"Sleep: {sleep}
+")
+            pdf.multi_cell(200, 8, f"Appearance: {appearance}
+")
+            pdf.multi_cell(200, 8, f"Appetite: {appetite}
+")
+            pdf.multi_cell(200, 8, f"Thirst: {thirst}
+")
+            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}
+")
+            pdf.multi_cell(200, 8, f"Stool: {stool}
+")
+            pdf.multi_cell(200, 8, f"Urine: {urine}
+")
+            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}
+")
+            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}
+")
+            pdf.multi_cell(200, 8, f"Family History: {family_history}
+")
+            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}
+")
+            pdf.multi_cell(200, 8, f"Personal History: {personal_history}
+")
+
         if "Medicine" in include_info:
             pdf.set_font("Arial", "B", 14)
             pdf.cell(200, 10, "Prescribed Medicine", ln=True)
@@ -177,6 +233,21 @@ if service_type == "Case Taking":
             "Symptoms": ", ".join([s for s in selected_symptoms if s != "Other"]),
             "ManualSymptom": manual_symptom,
             "Notes": notes,
+            "GeneralComplaints": general_complaints,
+            "MentalSymptoms": mental_symptoms,
+            "Modalities": modalities,
+            "Sleep": sleep,
+            "Appearance": appearance,
+            "Appetite": appetite,
+            "Thirst": thirst,
+            "Perspiration": perspiration,
+            "Stool": stool,
+            "Urine": urine,
+            "Menstrual": menstrual,
+            "Obstetric": obstetric,
+            "FamilyHistory": family_history,
+            "PastHistory": past_history,
+            "PersonalHistory": personal_history,
             "PrescribedMedicine": prescribed_str
         }
         df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
