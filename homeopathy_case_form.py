@@ -178,8 +178,13 @@ if service_type == "Case Taking":
         st.success(f"Case for {name} saved successfully!")
 
 elif service_type == "Medical Certificate":
-    certificate_text = st.text_area("Customize Certificate Text", 
-        f"This is to certify that Mr./Ms. {name}, aged {age}, has been examined and advised medical rest due to health condition.")
+    st.header("Medical Leave Certificate Form")
+
+    illness_reason = st.text_input("Diagnosis / Reason for Medical Leave")
+    illness_start = st.date_input("Start Date of Leave")
+    illness_end = st.date_input("End Date of Leave")
+    issue_date = st.date_input("Date of Issue", value=date.today())
+            f"This is to certify that Mr./Ms. {name}, aged {age}, has been examined and advised medical rest due to health condition.")
     issue_date = st.date_input("Date of Issue", value=date.today())
     signature_path = st.file_uploader("Upload Doctor's Digital Signature", type=["png", "jpg"])
     stamp_path = st.file_uploader("Upload Clinic Stamp", type=["png", "jpg"])
@@ -195,7 +200,11 @@ elif service_type == "Medical Certificate":
         cert.cell(200, 10, "Medical Certificate", ln=True, align='C')
         cert.set_font("Arial", size=12)
         cert.ln(10)
-        cert.multi_cell(200, 10, certificate_text)
+        cert.multi_cell(200, 10, f"This is to certify that Mr./Ms. {name}, aged {age}, was suffering from {illness_reason} and was under my care from {illness_start.strftime('%d-%m-%Y')} to {illness_end.strftime('%d-%m-%Y')}.
+
+The patient was advised to refrain from work during this period.
+
+This certificate is issued for medical leave purposes only.")
         cert.ln(10)
         cert.multi_cell(200, 10, f"Date: {issue_date}")
 
