@@ -27,7 +27,8 @@ st.set_page_config(page_title="Dr. Sneha Amit Dharnaik - Homeopathy", layout="wi
 st.sidebar.markdown("## Doctor Account")
 if st.sidebar.button("Logout"):
     st.session_state.logged_in = False
-    st.experimental_rerun()
+    st.success("Logged out!")
+    st.stop()
 
 # --- Doctor Login ---
 if 'logged_in' not in st.session_state:
@@ -49,8 +50,8 @@ if not st.session_state.logged_in:
     if st.button("Login"):
         if username == "doctor" and password == "dharnaik@14":
             st.session_state.logged_in = True
-            st.success("Logged in successfully")
-            st.experimental_rerun()
+            st.success("Logged in successfully!")
+            st.stop()
         else:
             st.error("Invalid credentials")
     st.stop()
