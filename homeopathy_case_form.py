@@ -330,3 +330,67 @@ with tabs[0]:
         df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
         df.to_csv(data_file, index=False)
         st.success(f"Case for {name} saved successfully!")
+with tabs[1]:
+    st.header("Patient History Table")
+    if st.button("Export All Records to Excel"):
+        output = BytesIO()
+        df.to_excel(output, index=False)
+        output.seek(0)
+        st.download_button("Download Excel File", data=output, file_name="patient_records.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    if not df.empty:
+        st.dataframe(df.drop(columns=["PrescribedMedicine"]))
+        selected_name = st.selectbox("Select patient to view detailed case", df["Name"].unique())
+        patient_details = df[df["Name"] == selected_name].iloc[-1]
+        st.subheader("Patient Summary")
+        st.markdown(f"**Name:** {patient_details['Name']}")
+        st.markdown(f"**Age/Gender:** {patient_details['Age']} / {patient_details['Gender']}")
+        st.markdown(f"**Symptoms:** {patient_details['Symptoms']}")
+        st.markdown(f"**Prescribed Medicines:** {patient_details['PrescribedMedicine']}")
+        with st.expander("View Full Case History"):
+            for col in df.columns:
+                st.markdown(f"**{col}**: {patient_details[col]}")
+    else:
+        st.info("No patient records found.")
+
+with tabs[2]:
+    st.header("Generate Medical Certificate")
+    st.markdown("Upload your digital signature and clinic stamp (only once; saved locally).")
+    sig_path = "signature.png"
+    stamp_path = "stamp.png"
+    sig_uploaded = st.file_uploader("Upload Signature (PNG)", type="png", key="sig")
+    stamp_uploaded = st.file_uploader("Upload Stamp (PNG)", type="png", key="stamp")
+    if sig_uploaded:
+        with open(sig_path, "wb") as f:
+            f.write(sig_uploaded.read())
+    if stamp_uploaded:
+        with open(stamp_path, "wb") as f:
+            f.write(stamp_uploaded.read())
+
+    cert_name = st.text_input("Patient Full Name", key="cert_name")
+    cert_age = st.number_input("Age", min_value=0, max_value=120, step=1, key="cert_age")
+    cert_illness = st.text_input("Illness / Reason", key="cert_illness")
+    illness_start = st.date_input("Illness From Date", key="illness_start")
+    illness_end = st.date_input("Illness To Date", key="illness_end")
+    issue_date = st.date_input("Certificate Issue Date", value=date.today(), key="cert_issue_date")
+
+    if st.button("Download Medical Certificate"):
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Times", "B", 16)
+        pdf.cell(200, 10, "Medical Certificate", ln=True, align='C')
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 10, f"This is to certify that Mr./Ms. {cert_name}, aged {cert_age}, was suffering from {cert_illness} and was under my care from {illness_start.strftime('%d-%m-%Y')} to {illness_end.strftime('%d-%m-%Y')}.")
+        pdf.ln(5)
+        pdf.multi_cell(200, 10, f"The patient was advised medical rest during this period.\nIssued on {issue_date.strftime('%d-%m-%Y')} for official use.")
+
+        # Add images if available
+        if os.path.exists(sig_path):
+            pdf.image(sig_path, x=10, y=220, w=40)
+        if os.path.exists(stamp_path):
+            pdf.image(stamp_path, x=150, y=220, w=40)
+
+        cert_file = f"{cert_name.replace(' ', '_')}_medical_certificate.pdf"
+        pdf.output(cert_file)
+        with open(cert_file, "rb") as f:
+            st.download_button("Download Certificate", data=f, file_name=cert_file, mime="application/pdf")
+
