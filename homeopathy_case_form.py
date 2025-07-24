@@ -193,7 +193,8 @@ with tabs[0]:
     if st.button("Download PDF"):
         temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         pdf = FPDF()
-        pdf.set_margins(10, 15, 10)
+        pdf.set_margins(10, 15, 10)  # left, top, right
+        pdf.set_auto_page_break(auto=True, margin=40)  # <-- Add this line for bottom margin!
         pdf.add_page()
         if os.path.exists("letterhead.png"):
             pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
