@@ -59,8 +59,15 @@ st.title("Homeopathy Patient Service - Dr. Sneha Amit Dharnaik")
 tabs = st.tabs(["Case Taking Form", "Patient History", "Medical Certificate"])
 
 with tabs[0]:
-    
-# --- Service Selection ---
+    # --- Service Selection ---
+    service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
+
+
+    # --- Patient Selection ---
+    existing_patients = df["Name"].unique().tolist()
+    selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
+
+    # --- Prefill if existing ---    # --- Service Selection ---
 service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
 
 # --- Patient Selection ---
@@ -190,8 +197,9 @@ if service_type == "Case Taking":
     ], default=["Patient Info", "Symptoms", "Notes", "Medicine"])
 
     if st.button("Download PDF"):
-        pdf = FPDF()
-        pdf.set_margins(10, 15, 10)
+    pdf = FPDF()
+    pdf.set_margins(10, 15, 10)
+        
 pdf.set_margins(10, 15, 10)
         pdf.add_page()
         pdf.set_font("Times", size=12)
