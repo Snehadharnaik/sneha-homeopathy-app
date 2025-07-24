@@ -198,11 +198,13 @@ if service_type == "Case Taking":
 
     if st.button("Download PDF"):
         pdf = FPDF()
-    pdf.set_margins(10, 15, 10)
-        
-pdf.set_margins(10, 15, 10)
+        pdf.set_margins(10, 15, 10)
         pdf.add_page()
         pdf.set_font("Times", size=12)
+    pdf.set_margins(10, 15, 10)
+    pdf.add_page()
+    pdf.set_font("Times", size=12)
+
 
         if "Patient Info" in include_info:
             pdf.set_font("Times", "B", 14)
