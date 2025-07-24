@@ -201,89 +201,86 @@ if service_type == "Case Taking":
     pdf.set_margins(10, 15, 10)
     pdf.add_page()
     pdf.set_font("Times", size=12)
-    pdf.set_margins(10, 15, 10)
-    pdf.add_page()
-    pdf.set_font("Times", size=12)
 
+    if "Patient Info" in include_info:
+        pdf.set_font("Times", "B", 14)
+        pdf.cell(200, 10, "Patient Information", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 8, f"Name: {name}", ln=True)
+        pdf.cell(200, 8, f"Age: {age}", ln=True)
+        pdf.cell(200, 8, f"Gender: {gender}", ln=True)
+        pdf.cell(200, 8, f"Contact: {contact}", ln=True)
+        pdf.multi_cell(200, 8, f"Address: {address}")
 
-        if "Patient Info" in include_info:
-            pdf.set_font("Times", "B", 14)
-            pdf.cell(200, 10, "Patient Information", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.cell(200, 8, f"Name: {name}", ln=True)
-            pdf.cell(200, 8, f"Age: {age}", ln=True)
-            pdf.cell(200, 8, f"Gender: {gender}", ln=True)
-            pdf.cell(200, 8, f"Contact: {contact}", ln=True)
-            pdf.multi_cell(200, 8, f"Address: {address}")
+    if "Symptoms" in include_info:
+        pdf.set_font("Times", "B", 14)
+        pdf.cell(200, 10, "Symptoms", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
 
-        if "Symptoms" in include_info:
-            pdf.set_font("Times", "B", 14)
-            pdf.cell(200, 10, "Symptoms", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
+    if "Manual Symptom" in include_info and manual_symptom:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Additional Symptoms", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, manual_symptom)
 
-        if "Manual Symptom" in include_info and manual_symptom:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Additional Symptoms", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, manual_symptom)
+    if "Repertory" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Repertory Reference", ln=True)
+        pdf.set_font("Arial", size=12)
+        for symptom in selected_symptoms:
+            if symptom in repertory_map:
+                rubric, remedies = repertory_map[symptom]
+                pdf.multi_cell(200, 8, f"{symptom} → {rubric}\nSuggested: {remedies}")
 
-        if "Repertory" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Repertory Reference", ln=True)
-            pdf.set_font("Arial", size=12)
-            for symptom in selected_symptoms:
-                if symptom in repertory_map:
-                    rubric, remedies = repertory_map[symptom]
-                    pdf.multi_cell(200, 8, f"{symptom} → {rubric}\nSuggested: {remedies}")
+    if "Notes" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Doctor's Notes", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, notes)
 
-        if "Notes" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Doctor's Notes", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, notes)
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Detailed Case History", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}")
+        pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}")
+        pdf.multi_cell(200, 8, f"Modalities: {modalities}")
+        pdf.multi_cell(200, 8, f"Sleep: {sleep}")
+        pdf.multi_cell(200, 8, f"Appearance: {appearance}")
+        pdf.multi_cell(200, 8, f"Appetite: {appetite}")
+        pdf.multi_cell(200, 8, f"Thirst: {thirst}")
+        pdf.multi_cell(200, 8, f"Perspiration: {perspiration}")
+        pdf.multi_cell(200, 8, f"Stool: {stool}")
+        pdf.multi_cell(200, 8, f"Urine: {urine}")
+        pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}")
+        pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}")
+        pdf.multi_cell(200, 8, f"Family History: {family_history}")
+        pdf.multi_cell(200, 8, f"Past Medical History: {past_history}")
+        pdf.multi_cell(200, 8, f"Personal History: {personal_history}")
 
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Detailed Case History", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}")
-            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}")
-            pdf.multi_cell(200, 8, f"Modalities: {modalities}")
-            pdf.multi_cell(200, 8, f"Sleep: {sleep}")
-            pdf.multi_cell(200, 8, f"Appearance: {appearance}")
-            pdf.multi_cell(200, 8, f"Appetite: {appetite}")
-            pdf.multi_cell(200, 8, f"Thirst: {thirst}")
-            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}")
-            pdf.multi_cell(200, 8, f"Stool: {stool}")
-            pdf.multi_cell(200, 8, f"Urine: {urine}")
-            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}")
-            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}")
-            pdf.multi_cell(200, 8, f"Family History: {family_history}")
-            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}")
-            pdf.multi_cell(200, 8, f"Personal History: {personal_history}")
+    if "Medicine" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Prescribed Medicine", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, prescribed_str)
 
-        if "Medicine" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Prescribed Medicine", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, prescribed_str)
+    if "Follow-Up" in include_info:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Follow-Up Date", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(200, 8, str(followup_new))
 
-        if "Follow-Up" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Follow-Up Date", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, str(followup_new))
+    file_name = f"{name.replace(' ', '_')}_case_history.pdf"
+    pdf.output(file_name)
 
-        file_name = f"{name.replace(' ', '_')}_case_history.pdf"
-        pdf.output(file_name)
+    with open(file_name, "rb") as f:
+        st.download_button(
+            label="Download Case History PDF",
+            data=f,
+            file_name=file_name,
+            mime="application/pdf"
+        )
 
-        with open(file_name, "rb") as f:
-            st.download_button(
-                label="Download Case History PDF",
-                data=f,
-                file_name=file_name,
-                mime="application/pdf"
-            )
 
     if st.button("Save Case Record"):
         new_record = {
