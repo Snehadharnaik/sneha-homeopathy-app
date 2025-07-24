@@ -195,6 +195,10 @@ with tabs[0]:
         pdf = FPDF()
         pdf.set_margins(10, 15, 10)
         pdf.add_page()
+        if os.path.exists("letterhead.png"):
+            pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
+            pdf.set_y(50)  # <---- PASTE THIS LINE HERE!
+        pdf.set_font("Times", size=12)
         # Letterhead as background on first page (A4 size)
         if os.path.exists("letterhead.png"):
             pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
