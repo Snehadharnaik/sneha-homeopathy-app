@@ -60,9 +60,7 @@ st.title("Homeopathy Patient Service - Dr. Sneha Amit Dharnaik")
 tabs = st.tabs(["Case Taking Form", "Patient History", "Medical Certificate"])
 
 with tabs[0]:
-    # --- Service Selection ---
-    service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
-
+        
     # --- Patient Selection ---
     existing_patients = df["Name"].unique().tolist()
     selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
@@ -138,14 +136,13 @@ with tabs[0]:
         previous_notes = ""
         previous_medicine = ""
 
-    if service_type == "Case Taking":
-        if selected_patient != "<New Patient>":
-            st.write("### Previous Case Details")
-            st.markdown(f"**Symptoms:** {previous_symptoms}")
-            st.markdown(f"**Manual Symptoms:** {previous_manual}")
-            st.markdown(f"**Notes:** {previous_notes}")
-            st.markdown(f"**Prescribed Medicine:** {previous_medicine}")
-            st.markdown(f"**Follow-Up:** {followup}")
+    if selected_patient != "<New Patient>":
+          st.write("### Previous Case Details")
+          st.markdown(f"**Symptoms:** {previous_symptoms}")
+          st.markdown(f"**Manual Symptoms:** {previous_manual}")
+          st.markdown(f"**Notes:** {previous_notes}")
+          st.markdown(f"**Prescribed Medicine:** {previous_medicine}")
+          st.markdown(f"**Follow-Up:** {followup}")
 
         st.header("Current Visit")
         dropdown_symptoms = [
