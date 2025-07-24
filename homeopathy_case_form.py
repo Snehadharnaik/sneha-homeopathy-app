@@ -198,7 +198,7 @@ with tabs[0]:
         pdf.add_page()
         if os.path.exists("letterhead.png"):
             pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
-            pdf.set_y(65)  # <---- PASTE THIS LINE HERE!
+            pdf.set_y(70)  # <---- PASTE THIS LINE HERE!
         pdf.set_font("Times", size=12)
         # Letterhead as background on first page (A4 size)
         if os.path.exists("letterhead.png"):
@@ -361,10 +361,12 @@ with tabs[2]:
 
     if st.button("Download Medical Certificate"):
         pdf = FPDF()
+        pdf.set_margins(10, 15, 10)
+        pdf.set_auto_page_break(auto=True, margin=40)  # For bottom margin if you want
         pdf.add_page()
-        # If you want your letterhead on the certificate, use the same image method
         if os.path.exists("letterhead.png"):
-            pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
+            pdf.image("letterhead.png", x=0, y=0, w=210, h=297)  # <-- Letterhead image
+            pdf.set_y(70)  # <-- PASTE THIS LINE HERE (adjust 50 as needed)
         pdf.set_font("Times", "B", 16)
         pdf.cell(200, 10, "Medical Certificate", ln=True, align='C')
         pdf.set_font("Arial", size=12)
