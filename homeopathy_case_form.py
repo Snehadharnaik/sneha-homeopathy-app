@@ -1,4 +1,5 @@
 import streamlit as st
+from io import BytesIO
 import pandas as pd
 import os
 from datetime import date
@@ -18,16 +19,47 @@ else:
         "GeneralComplaints", "MentalSymptoms", "Modalities", "Sleep", "Appearance",
         "Appetite", "Thirst", "Perspiration", "Stool", "Urine", "Menstrual",
         "Obstetric", "FamilyHistory", "PastHistory", "PersonalHistory"
-        "Name", "Age", "Gender", "Contact", "Address", "FollowUp",
-        "Symptoms", "ManualSymptom", "Notes", "PrescribedMedicine"
     ])
 
 st.set_page_config(page_title="Dr. Sneha Amit Dharnaik - Homeopathy", layout="wide")
+
+# --- Logout Button ---
+st.sidebar.markdown("## Doctor Account")
+if st.sidebar.button("Logout"):
+    st.session_state.logged_in = False
+    st.experimental_rerun()
+
+# --- Doctor Login ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.title("Doctor Login")
+
+reset = st.checkbox("Forgot Password?")
+if reset:
+    new_password = st.text_input("Enter new password")
+    confirm_password = st.text_input("Confirm new password", type="password")
+    if st.button("Reset Password"):
+        if new_password == confirm_password and new_password.strip():
+            st.success("Password reset is not yet implemented in cloud deployment. Please contact admin.")
+        else:
+            st.error("Passwords do not match or are empty.")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if username == "doctor" and password == "dharnaik@14":
+            st.session_state.logged_in = True
+            st.success("Logged in successfully")
+            st.experimental_rerun()
+        else:
+            st.error("Invalid credentials")
+    st.stop()
 st.title("Homeopathy Patient Service - Dr. Sneha Amit Dharnaik")
 tabs = st.tabs(["Case Taking Form", "Patient History", "Medical Certificate"])
 
 with tabs[0]:
-
+    
 # --- Service Selection ---
 service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
 
@@ -159,11 +191,13 @@ if service_type == "Case Taking":
 
     if st.button("Download PDF"):
         pdf = FPDF()
+        pdf.set_margins(10, 15, 10)
+pdf.set_margins(10, 15, 10)
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Times", size=12)
 
         if "Patient Info" in include_info:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Times", "B", 14)
             pdf.cell(200, 10, "Patient Information", ln=True)
             pdf.set_font("Arial", size=12)
             pdf.cell(200, 8, f"Name: {name}", ln=True)
@@ -173,7 +207,7 @@ if service_type == "Case Taking":
             pdf.multi_cell(200, 8, f"Address: {address}")
 
         if "Symptoms" in include_info:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Times", "B", 14)
             pdf.cell(200, 10, "Symptoms", ln=True)
             pdf.set_font("Arial", size=12)
             pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
@@ -275,6 +309,11 @@ if service_type == "Case Taking":
 
 with tabs[1]:
     st.header("Patient History Table")
+    if st.button("Export All Records to Excel"):
+        output = BytesIO()
+        df.to_excel(output, index=False)
+        output.seek(0)
+        st.download_button("Download Excel File", data=output, file_name="patient_records.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if not df.empty:
         st.dataframe(df.drop(columns=["PrescribedMedicine"]))
         selected_name = st.selectbox("Select patient to view detailed case", df["Name"].unique())
@@ -314,13 +353,12 @@ with tabs[2]:
     if st.button("Download Medical Certificate"):
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", "B", 16)
+        pdf.set_font("Times", "B", 16)
         pdf.cell(200, 10, "Medical Certificate", ln=True, align='C')
         pdf.set_font("Arial", size=12)
         pdf.multi_cell(200, 10, f"This is to certify that Mr./Ms. {cert_name}, aged {cert_age}, was suffering from {cert_illness} and was under my care from {illness_start.strftime('%d-%m-%Y')} to {illness_end.strftime('%d-%m-%Y')}.")
         pdf.ln(5)
         pdf.multi_cell(200, 10, f"The patient was advised medical rest during this period.
-
 Issued on {issue_date.strftime('%d-%m-%Y')} for official use.")
 
         # Add images if available
