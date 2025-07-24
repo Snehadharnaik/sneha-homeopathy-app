@@ -192,112 +192,34 @@ with tabs[0]:
     )
 
     if st.button("Download PDF"):
-        temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        pdf = FPDF()
-        pdf.set_margins(10, 15, 10)
-        pdf.add_page()
-        pdf.set_font("Times", size=12)
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    pdf = FPDF()
+    pdf.set_margins(10, 15, 10)
+    pdf.add_page()
+    # Letterhead as background
+    if os.path.exists("letterhead.png"):
+        pdf.image("letterhead.png", x=0, y=0, w=210, h=297)  # A4 size
+    pdf.set_font("Times", size=12)
+    # Now add your sections (do not change this part if your form is working):
+    if "Patient Info" in include_info:
+        pdf.set_font("Times", "B", 14)
+        pdf.cell(200, 10, "Patient Information", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 8, f"Name: {name}", ln=True)
+        pdf.cell(200, 8, f"Age: {age}", ln=True)
+        pdf.cell(200, 8, f"Gender: {gender}", ln=True)
+        pdf.cell(200, 8, f"Contact: {contact}", ln=True)
+        pdf.multi_cell(200, 8, f"Address: {address}")
+    # ... (all your other pdf fields as before) ...
+    pdf.output(temp_pdf.name)
+    with open(temp_pdf.name, "rb") as f:
+        st.download_button(
+            label="Download Case History PDF",
+            data=f,
+            file_name=f"{name.replace(' ', '_')}_case_history.pdf",
+            mime="application/pdf"
+        )
 
-        if "Patient Info" in include_info:
-            pdf.set_font("Times", "B", 14)
-            pdf.cell(200, 10, "Patient Information", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.cell(200, 8, f"Name: {name}", ln=True)
-            pdf.cell(200, 8, f"Age: {age}", ln=True)
-            pdf.cell(200, 8, f"Gender: {gender}", ln=True)
-            pdf.cell(200, 8, f"Contact: {contact}", ln=True)
-            pdf.multi_cell(200, 8, f"Address: {address}")
-
-        if "Symptoms" in include_info:
-            pdf.set_font("Times", "B", 14)
-            pdf.cell(200, 10, "Symptoms", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
-
-        if "Manual Symptom" in include_info and manual_symptom:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Additional Symptoms", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, manual_symptom)
-
-        if "Repertory" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Repertory Reference", ln=True)
-            pdf.set_font("Arial", size=12)
-            for symptom in selected_symptoms:
-                if symptom in repertory_map:
-                    rubric, remedies = repertory_map[symptom]
-                    pdf.multi_cell(200, 8, f"{symptom} → {rubric}\nSuggested: {remedies}")
-
-        if "Notes" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Doctor's Notes", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, notes)
-
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Detailed Case History", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}")
-            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}")
-            pdf.multi_cell(200, 8, f"Modalities: {modalities}")
-            pdf.multi_cell(200, 8, f"Sleep: {sleep}")
-            pdf.multi_cell(200, 8, f"Appearance: {appearance}")
-            pdf.multi_cell(200, 8, f"Appetite: {appetite}")
-            pdf.multi_cell(200, 8, f"Thirst: {thirst}")
-            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}")
-            pdf.multi_cell(200, 8, f"Stool: {stool}")
-            pdf.multi_cell(200, 8, f"Urine: {urine}")
-            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}")
-            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}")
-            pdf.multi_cell(200, 8, f"Family History: {family_history}")
-            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}")
-            pdf.multi_cell(200, 8, f"Personal History: {personal_history}")
-
-        if "Medicine" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Prescribed Medicine", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, prescribed_str)
-
-        if "Follow-Up" in include_info:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Follow-Up Date", ln=True)
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(200, 8, str(followup_new))
-
-        pdf.output(temp_pdf.name)
-        temp_pdf.close()
-
-        # Add letterhead.pdf on first page, if available
-        letterhead_path = "letterhead.pdf"
-        if os.path.exists(letterhead_path):
-            with open(letterhead_path, "rb") as f:
-                letterhead_reader = PdfReader(f)
-                letterhead_page = letterhead_reader.pages[0]
-            with open(temp_pdf.name, "rb") as f:
-                case_reader = PdfReader(f)
-                writer = PdfWriter()
-                # Overlay the first page
-                first_content_page = case_reader.pages[0]
-                letterhead_page.merge_page(first_content_page)
-                writer.add_page(letterhead_page)
-                # Add remaining pages
-                for i in range(1, len(case_reader.pages)):
-                    writer.add_page(case_reader.pages[i])
-                final_pdf_path = f"{name.replace(' ', '_')}_case_history.pdf"
-                with open(final_pdf_path, "wb") as fout:
-                    writer.write(fout)
-        else:
-            final_pdf_path = temp_pdf.name  # fallback if no letterhead
-
-        with open(final_pdf_path, "rb") as f:
-            st.download_button(
-                label="Download Case History PDF",
-                data=f,
-                file_name=f"{name.replace(' ', '_')}_case_history.pdf",
-                mime="application/pdf"
-            )
 
     if st.button("Save Case Record"):
         new_record = {
