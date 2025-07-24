@@ -4,7 +4,6 @@ import pandas as pd
 import os
 from datetime import date
 from fpdf import FPDF
-from PyPDF2 import PdfReader, PdfWriter
 import tempfile
 
 # CSV file to store patient data
@@ -60,12 +59,12 @@ if not st.session_state.logged_in:
 st.title("Homeopathy Patient Service - Dr. Sneha Amit Dharnaik")
 tabs = st.tabs(["Case Taking Form", "Patient History", "Medical Certificate"])
 
+# ========== TAB 1: CASE TAKING FORM ==========
 with tabs[0]:
-    # --- Patient Selection ---
     existing_patients = df["Name"].unique().tolist()
     selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
 
-    # --- Prefill if existing ---
+    # Case history fields
     general_complaints_options = ["Pain", "Weakness", "Fever", "Cough", "Headache", "Fatigue", "Other"]
     general_complaints = st.selectbox("General Complaints", general_complaints_options)
     if general_complaints == "Other":
@@ -180,7 +179,6 @@ with tabs[0]:
     prescribed_str = ", ".join(prescribed)
     followup_new = st.date_input("Next Follow-Up Date", value=date.today())
 
-    # -- Download PDF block with unique key --
     st.header("Download Case History")
     include_info = st.multiselect(
         "Select sections to include in PDF",
@@ -191,35 +189,93 @@ with tabs[0]:
         key="case_pdf_sections"
     )
 
+    # --- Download PDF Button on Letterhead Image (First Page Only) ---
     if st.button("Download PDF"):
-    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    pdf = FPDF()
-    pdf.set_margins(10, 15, 10)
-    pdf.add_page()
-    # Letterhead as background
-    if os.path.exists("letterhead.png"):
-        pdf.image("letterhead.png", x=0, y=0, w=210, h=297)  # A4 size
-    pdf.set_font("Times", size=12)
-    # Now add your sections (do not change this part if your form is working):
-    if "Patient Info" in include_info:
-        pdf.set_font("Times", "B", 14)
-        pdf.cell(200, 10, "Patient Information", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 8, f"Name: {name}", ln=True)
-        pdf.cell(200, 8, f"Age: {age}", ln=True)
-        pdf.cell(200, 8, f"Gender: {gender}", ln=True)
-        pdf.cell(200, 8, f"Contact: {contact}", ln=True)
-        pdf.multi_cell(200, 8, f"Address: {address}")
-    # ... (all your other pdf fields as before) ...
-    pdf.output(temp_pdf.name)
-    with open(temp_pdf.name, "rb") as f:
-        st.download_button(
-            label="Download Case History PDF",
-            data=f,
-            file_name=f"{name.replace(' ', '_')}_case_history.pdf",
-            mime="application/pdf"
-        )
+        temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+        pdf = FPDF()
+        pdf.set_margins(10, 15, 10)
+        pdf.add_page()
+        # Letterhead as background on first page (A4 size)
+        if os.path.exists("letterhead.png"):
+            pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
+        pdf.set_font("Times", size=12)
 
+        if "Patient Info" in include_info:
+            pdf.set_font("Times", "B", 14)
+            pdf.cell(200, 10, "Patient Information", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.cell(200, 8, f"Name: {name}", ln=True)
+            pdf.cell(200, 8, f"Age: {age}", ln=True)
+            pdf.cell(200, 8, f"Gender: {gender}", ln=True)
+            pdf.cell(200, 8, f"Contact: {contact}", ln=True)
+            pdf.multi_cell(200, 8, f"Address: {address}")
+
+        if "Symptoms" in include_info:
+            pdf.set_font("Times", "B", 14)
+            pdf.cell(200, 10, "Symptoms", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, ", ".join([s for s in selected_symptoms if s != "Other"]))
+
+        if "Manual Symptom" in include_info and manual_symptom:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Additional Symptoms", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, manual_symptom)
+
+        if "Repertory" in include_info:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Repertory Reference", ln=True)
+            pdf.set_font("Arial", size=12)
+            for symptom in selected_symptoms:
+                if symptom in repertory_map:
+                    rubric, remedies = repertory_map[symptom]
+                    pdf.multi_cell(200, 8, f"{symptom} → {rubric}\nSuggested: {remedies}")
+
+        if "Notes" in include_info:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Doctor's Notes", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, notes)
+
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Detailed Case History", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, f"General Complaints: {general_complaints}")
+            pdf.multi_cell(200, 8, f"Mental & Emotional Symptoms: {mental_symptoms}")
+            pdf.multi_cell(200, 8, f"Modalities: {modalities}")
+            pdf.multi_cell(200, 8, f"Sleep: {sleep}")
+            pdf.multi_cell(200, 8, f"Appearance: {appearance}")
+            pdf.multi_cell(200, 8, f"Appetite: {appetite}")
+            pdf.multi_cell(200, 8, f"Thirst: {thirst}")
+            pdf.multi_cell(200, 8, f"Perspiration: {perspiration}")
+            pdf.multi_cell(200, 8, f"Stool: {stool}")
+            pdf.multi_cell(200, 8, f"Urine: {urine}")
+            pdf.multi_cell(200, 8, f"Menstrual History: {menstrual}")
+            pdf.multi_cell(200, 8, f"Obstetric History: {obstetric}")
+            pdf.multi_cell(200, 8, f"Family History: {family_history}")
+            pdf.multi_cell(200, 8, f"Past Medical History: {past_history}")
+            pdf.multi_cell(200, 8, f"Personal History: {personal_history}")
+
+        if "Medicine" in include_info:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Prescribed Medicine", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, prescribed_str)
+
+        if "Follow-Up" in include_info:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Follow-Up Date", ln=True)
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(200, 8, str(followup_new))
+
+        pdf.output(temp_pdf.name)
+        with open(temp_pdf.name, "rb") as f:
+            st.download_button(
+                label="Download Case History PDF",
+                data=f,
+                file_name=f"{name.replace(' ', '_')}_case_history.pdf",
+                mime="application/pdf"
+            )
 
     if st.button("Save Case Record"):
         new_record = {
@@ -252,6 +308,8 @@ with tabs[0]:
         df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
         df.to_csv(data_file, index=False)
         st.success(f"Case for {name} saved successfully!")
+
+# ========== TAB 2: PATIENT HISTORY ==========
 with tabs[1]:
     st.header("Patient History Table")
     if st.button("Export All Records to Excel"):
@@ -274,6 +332,7 @@ with tabs[1]:
     else:
         st.info("No patient records found.")
 
+# ========== TAB 3: MEDICAL CERTIFICATE ==========
 with tabs[2]:
     st.header("Generate Medical Certificate")
     st.markdown("Upload your digital signature and clinic stamp (only once; saved locally).")
@@ -298,6 +357,9 @@ with tabs[2]:
     if st.button("Download Medical Certificate"):
         pdf = FPDF()
         pdf.add_page()
+        # If you want your letterhead on the certificate, use the same image method
+        if os.path.exists("letterhead.png"):
+            pdf.image("letterhead.png", x=0, y=0, w=210, h=297)
         pdf.set_font("Times", "B", 16)
         pdf.cell(200, 10, "Medical Certificate", ln=True, align='C')
         pdf.set_font("Arial", size=12)
@@ -315,4 +377,3 @@ with tabs[2]:
         pdf.output(cert_file)
         with open(cert_file, "rb") as f:
             st.download_button("Download Certificate", data=f, file_name=cert_file, mime="application/pdf")
-
