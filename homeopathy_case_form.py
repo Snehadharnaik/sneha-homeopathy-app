@@ -62,19 +62,14 @@ with tabs[0]:
     # --- Service Selection ---
     service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
 
-
     # --- Patient Selection ---
     existing_patients = df["Name"].unique().tolist()
     selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
 
-    # --- Prefill if existing ---    # --- Service Selection ---
-service_type = st.radio("Select Type of Form", ["Case Taking", "Medical Certificate"])
+    # --- Prefill if existing ---
+    # ... (rest of the code)
 
-# --- Patient Selection ---
-existing_patients = df["Name"].unique().tolist()
-selected_patient = st.selectbox("Select Existing Patient or Type New Name", ["<New Patient>"] + existing_patients)
 
-# --- Prefill if existing ---
 
 # Extended detailed case history fields
 general_complaints_options = ["Pain", "Weakness", "Fever", "Cough", "Headache", "Fatigue", "Other"]
@@ -196,11 +191,13 @@ if service_type == "Case Taking":
         "Patient Info", "Symptoms", "Manual Symptom", "Repertory", "Notes", "Medicine", "Follow-Up"
     ], default=["Patient Info", "Symptoms", "Notes", "Medicine"])
 
-    if st.button("Download PDF"):
+if st.button("Download PDF"):
     pdf = FPDF()
     pdf.set_margins(10, 15, 10)
     pdf.add_page()
     pdf.set_font("Times", size=12)
+    # All the other PDF code, including the "if" and "with open" blocks, must be indented 4 spaces
+    # until you reach the "if st.button('Save Case Record'):" line
 
     if "Patient Info" in include_info:
         pdf.set_font("Times", "B", 14)
@@ -282,8 +279,8 @@ if service_type == "Case Taking":
         )
 
 
-    if st.button("Save Case Record"):
-        new_record = {
+  if st.button("Save Case Record"):
+      new_record = {
             "Name": name,
             "Age": age,
             "Gender": gender,
