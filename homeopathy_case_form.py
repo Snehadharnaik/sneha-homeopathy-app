@@ -128,7 +128,7 @@ with tabs[0]:
         previous_medicine = record.get("PrescribedMedicine", "")
     else:
         name = st.text_input("Full Name")
-        age = st.number_input("Age", min_value=0, max_value=120, step=1)
+        age = st.number_input("Age", min_value=0, max_value=120, step=1, key="case_age")
         gender = st.selectbox("Gender", ["Male", "Female", "Other"])
         contact = st.text_input("Contact Number")
         address = st.text_area("Address")
@@ -342,7 +342,7 @@ with tabs[2]:
             f.write(stamp_uploaded.read())
 
     cert_name = st.text_input("Patient Full Name")
-    cert_age = st.number_input("Age", min_value=0, max_value=120, step=1)
+    cert_age = st.number_input("Age", min_value=0, max_value=120, step=1, key="cert_age")
     cert_illness = st.text_input("Illness / Reason")
     illness_start = st.date_input("Illness From Date")
     illness_end = st.date_input("Illness To Date")
