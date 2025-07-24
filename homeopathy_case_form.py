@@ -181,9 +181,14 @@ with tabs[0]:
         followup_new = st.date_input("Next Follow-Up Date", value=date.today())
 
         st.header("Download Case History")
-        include_info = st.multiselect("Select sections to include in PDF", [
-            "Patient Info", "Symptoms", "Manual Symptom", "Repertory", "Notes", "Medicine", "Follow-Up"
-        ], default=["Patient Info", "Symptoms", "Notes", "Medicine"])
+        include_info = st.multiselect(
+    "Select sections to include in PDF", 
+    [
+        "Patient Info", "Symptoms", "Manual Symptom", "Repertory", "Notes", "Medicine", "Follow-Up"
+    ], 
+    default=["Patient Info", "Symptoms", "Notes", "Medicine"], 
+    key="case_pdf_sections"
+)
 
         import tempfile
 from PyPDF2 import PdfReader, PdfWriter
