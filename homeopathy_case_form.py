@@ -137,12 +137,12 @@ with tabs[0]:
         previous_medicine = ""
 
     if selected_patient != "<New Patient>":
-          st.write("### Previous Case Details")
-          st.markdown(f"**Symptoms:** {previous_symptoms}")
-          st.markdown(f"**Manual Symptoms:** {previous_manual}")
-          st.markdown(f"**Notes:** {previous_notes}")
-          st.markdown(f"**Prescribed Medicine:** {previous_medicine}")
-          st.markdown(f"**Follow-Up:** {followup}")
+        st.write("### Previous Case Details")
+        st.markdown(f"**Symptoms:** {previous_symptoms}")
+        st.markdown(f"**Manual Symptoms:** {previous_manual}")
+        st.markdown(f"**Notes:** {previous_notes}")
+        st.markdown(f"**Prescribed Medicine:** {previous_medicine}")
+        st.markdown(f"**Follow-Up:** {followup}")
 
         st.header("Current Visit")
         dropdown_symptoms = [
