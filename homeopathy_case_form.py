@@ -197,7 +197,7 @@ if service_type == "Case Taking":
     ], default=["Patient Info", "Symptoms", "Notes", "Medicine"])
 
     if st.button("Download PDF"):
-    pdf = FPDF()
+        pdf = FPDF()
     pdf.set_margins(10, 15, 10)
         
 pdf.set_margins(10, 15, 10)
